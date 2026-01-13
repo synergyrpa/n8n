@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+  # ------------------------------------------------
+  # SERVIÇO 1: BANCO DE DADOS INTERNO
+  # ------------------------------------------------
+  n8n_internal_db:
+    image: postgres:15-alpine
+    container_name: n8n_internal_db
+    restart: always
+    # Carrega as variáveis para garantir contexto
+    env_file: .env
+    environment:
+      # Mapeia as variáveis do .env para a criação do banco
+      - POSTGRES_USER=${POSTGRES_INTERNAL_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_INTERNAL_PASS}
+      - POSTGRES_DB=${POSTGRES_INTERNAL_DB}
+    volumes:
+      - ./n8n_db_data:/var/lib/postgresql/data
+    networks:
+      - rede_interna_martins
+    # Healthcheck: Garante que o n8n só inicie quando o banco estiver pronto
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_INTERNAL_USER} -d ${POSTGRES_INTERNAL_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ------------------------------------------------
+  # SERVIÇO 2: APLICAÇÃO N8N
+  # ------------------------------------------------
+  n8n:
+    image: n8nio/n8n:2.2.4
+    container_name: n8n_app
+    restart: always
+    env_file: .env
+    environment:
+      - DB_TYPE=postgresdb
+
+    # Task Runner (EXTERNAL MODE)
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_RUNNERS_MODE=external
+      - N8N_RUNNERS_AUTH_TOKEN=22b7b774-fc52-429b-ae94-117465311aaa
+      - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
+      - N8N_NATIVE_PYTHON_RUNNER=true
+      - N8N_RUNNERS_BROKER_PORT=5679
+    # Banco
+      - DB_POSTGRESDB_HOST=n8n_internal_db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_INTERNAL_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_INTERNAL_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_INTERNAL_PASS}
+
+    # N8N
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - NODE_ENV=${NODE_ENV}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+
+    ports:
+      - "5678:5678"
+
+    depends_on:
+      n8n_internal_db:
+        condition: service_healthy
+      task-runner:
+        condition: service_started
+
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+
+    networks:
+      - rede_interna_martins
+
+  task-runner:
+    image: n8nio/runners:2.2.4
+    container_name: n8n-task-runner
+    restart: always
+
+    environment:
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n_app:5679
+      - N8N_RUNNERS_AUTH_TOKEN=22b7b774-fc52-429b-ae94-117465311aaa
+
+    networks:
+      - rede_interna_martins
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+  # Define a rede externa criada anteriormente
+networks:
+  rede_interna_martins:
+    external: true

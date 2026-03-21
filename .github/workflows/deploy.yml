@@ -19,7 +19,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             # 1. Navega até o diretório do n8n na VPS
-            cd /caminho/exato/para/o/diretorio/do/n8n
+            cd /opt/n8n/
             
             # 2. Puxa as atualizações do código do GitHub
             git pull origin main

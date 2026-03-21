@@ -25,10 +25,10 @@ jobs:
             git pull origin main
             
             # 3. Baixa as imagens mais recentes (útil se você atualizou a tag da versão do n8n no docker-compose)
-            docker compose pull
+            docker-compose pull
             
             # 4. Sobe os containers novamente aplicando as alterações em segundo plano (-d)
-            docker compose up -d --build
+            docker-compose up -d --build
             
             # 5. Limpa imagens antigas do Docker que ficaram sem uso para não lotar o disco da Hostinger (Opcional, mas recomendado)
             docker image prune -f

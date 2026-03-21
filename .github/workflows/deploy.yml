@@ -22,13 +22,13 @@ jobs:
             cd /opt/n8n/
             
             # 2. Puxa as atualizações do código do GitHub
-            git pull origin main
+            git pull origin main 2>&1
             
             # 3. Baixa as imagens mais recentes (útil se você atualizou a tag da versão do n8n no docker-compose)
-            docker-compose pull
+            docker-compose pull 2>&1
             
             # 4. Sobe os containers novamente aplicando as alterações em segundo plano (-d)
-            docker-compose up -d --build
+            docker-compose up -d --build --force-recreate 2>&1
             
             # 5. Limpa imagens antigas do Docker que ficaram sem uso para não lotar o disco da Hostinger (Opcional, mas recomendado)
-            docker image prune -f
+            docker image prune -f 2>&1

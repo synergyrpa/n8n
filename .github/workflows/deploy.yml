@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: 🚀 Deploy n8n
+    name: Deploy - PROD
     runs-on: ubuntu-latest
     steps:
       - name: 🔗 Conectar, Atualizar e Reiniciar

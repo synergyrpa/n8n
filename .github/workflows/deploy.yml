@@ -20,6 +20,13 @@ jobs:
           script: |
             # 1. Navega até o diretório do n8n na VPS
             cd /opt/n8n/
+
+            # 2. Cria a pasta de dados caso ela não exista
+            mkdir -p n8n_data
+            
+            # 3. AUTOMATIZAÇÃO: Garante que o n8n (1000) manda na pasta de dados
+            # O resto da pasta /opt/n8n continua sendo do deploy (1001)
+            sudo chown -R 1000:1000 /opt/n8n/n8n_data
             
             # 2. Puxa as atualizações do código do GitHub
             git pull origin main 2>&1

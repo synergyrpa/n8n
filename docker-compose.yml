@@ -97,6 +97,20 @@ services:
       - rede_interna_martins
     volumes:
       - ./n8n_data:/home/node/.n8n
+
+  stirling-pdf:
+    image: stirlingtools/s-pdf:latest
+    container_name: stirling-pdf
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Desativa a autenticação interna do Stirling (ideal já que vai correr apenas localmente para o n8n)
+      - DOCKER_ENABLE_SECURITY=false
+      # Configura o idioma padrão da interface (caso queiras aceder pelo browser)
+      - LANGS=pt_BR
+      # Otimização: desativa funcionalidades extra que não precisas para converter imagens
+      # - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=false
   # Define a rede externa criada anteriormente
 networks:
   rede_interna_martins:

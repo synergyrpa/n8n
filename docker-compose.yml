@@ -99,7 +99,7 @@ services:
       - ./n8n_data:/home/node/.n8n
 
   stirling-pdf:
-    image: stirlingtools/s-pdf:latest
+    image: stirlingtools/stirling-pdf:latest
     container_name: stirling-pdf
     restart: unless-stopped
     ports:

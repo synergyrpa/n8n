@@ -111,6 +111,8 @@ services:
       - LANGS=pt_BR
       # Otimização: desativa funcionalidades extra que não precisas para converter imagens
       # - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=false
+    networks:
+      - rede_interna_martins
   # Define a rede externa criada anteriormente
 networks:
   rede_interna_martins:
